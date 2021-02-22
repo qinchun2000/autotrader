@@ -1,0 +1,12 @@
+Section,TotalProductNumber,ThreshHoldNumber,ProductRiskNumber,Active,Priority
+Black,9,6,1,1,1
+Oil,9,6,1,1,2
+Metal,6,5,0,1,3
+CookOil,3,3,1,1,4
+Feed,4,3,1,1,5
+Corn,2,2,0,1,6
+Single,5,5,0,1,7
+Stock,3,1,0,0,8
+Finance,2,1,0,0,9
+Precious,2,1,0,1,10
+Nothing,1,1,0,0,11
