@@ -1061,17 +1061,11 @@ time_t DateUtil::CheckHisDayLine(const char *tradingday,int difsec)
 
 }
 
-time_t DateUtil::CheckHisLastDayLinebyDate_ExcludeHoliday(const char *tradingday,int DifSec)
+time_t DateUtil::CheckHisLastDayLinebyDate_ExcludeHoliday(const char *tradingday,
+		int DifSec,const char* path,const char* filename)
 {
-
-	Config config("");
 	vector<std::string>  list;
-	this->ReadHoliday_CSV(list,config.GetHolidayPath().c_str(),config.GetHolidayFileName().c_str());
-
-//	for (auto &item:list)
-//		{
-//			printf("   %s    \n",item.c_str());
-//		}
+	this->ReadHoliday_CSV(list,path,filename);
 
 	time_t tm_enddayline;
 	tm_enddayline =  this->CheckHisLastDayLine(list,tradingday,DifSec);
@@ -1182,9 +1176,8 @@ bool DateUtil::CheckHoliday_SqlTime(const char *tradingday_sqltime)
 {
 	bool ret=false;
 
-	Config config("");
 	vector<std::string>  list;
-	ReadHoliday_CSV(list,config.GetHolidayPath().c_str(),config.GetHolidayFileName().c_str());
+	ReadHoliday_CSV(list,m_path.c_str(),m_file.c_str());
 
 	for (auto &day:list)	{
 
@@ -2598,6 +2591,7 @@ bool DateUtil::IsOpen(int difsec,const char *exchangeid,const char* productid)
 	bool ret=false;
 	bool opentime =CheckOpenTime(difsec,exchangeid,productid);
 	std::string today_sqltime= this->ConvertDatetoSqlTime(this->GetTodayString().c_str());
+
 	bool holiday = CheckHoliday_SqlTime(today_sqltime.c_str()) ;
 	if (opentime && !holiday)
 	{

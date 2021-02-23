@@ -648,7 +648,7 @@ void ThreadTrade::Run(){
 	//完成主力合约计算后,contract lists 写入map
 	datawrapper.start();
 
-//	pstrategy->start();
+	pstrategy->start();
 	printf("Trade:ready while ---------------------------------------------------------------->  \n");
 	this->GetLogUtil()->WriteLog("Trade:  自动交易程序启动后  准备进入定期循环任务！");
 
@@ -656,80 +656,80 @@ void ThreadTrade::Run(){
 	while(1)		{
 		sleep(3);
 
-//		printf("ttttttttttttttttt ---> 111111111 \n");
-//			bool flag_loginmarket = dateutil.CheckSHFELoginMarketTime(this->GetTrader()->GetDifSec());
-//			bool flag_open = dateutil.CheckCloseAll(this->GetTrader()->GetDifSec());  //09:00 开始
-//			bool flag_openmarket = dateutil.CheckSHFEOpenMarketTime(this->GetTrader()->GetDifSec());  //08:50 开始
-//			bool flag_holiday = dateutil.TodayIsHoliday();
-//
-//			bool flagfrontconnect_ok = this->GetTrader()->GetCTraderSpi()->GetFlagFrontConnectFalg();  //网络连接成功
-//			bool front_tradelimit = this->GetTrader()->GetFlagTradeLimit(); //网络限流
-//			printf("ttttttttttttttttt ---> 111111111 aaa\n");
-//			bool flag_predatastatus =datawrapper.GetPredataStatus();
-//			bool flagauthenticate_ok = this->GetTrader()->GetCTraderSpi()->GetFlagAuthenticate();  //终端授权成功
-//
-//			bool flaglogin_ok = this->GetTrader()->GetCTraderSpi()->GetFlagLogin();    //登录成功
-//			bool noerrorcode = this->GetTrader()->GetCTraderSpi()->GetConnectErrorCode()==0;    //网络连接无错误码
-//
-//			bool connect_error= !flagfrontconnect_ok &&!flaglogin_ok &&!noerrorcode;   //网络连接断开
-//			bool ready_authenticate = flagfrontconnect_ok && !flagauthenticate_ok &&!flaglogin_ok
-//					&& noerrorcode &&flag_openmarket; // 网络连接成功,未认证,未登录
-//			bool ready_login = flagfrontconnect_ok && flagauthenticate_ok &&!flaglogin_ok
-//					&& noerrorcode&&flag_openmarket; // 网络连接成功,认证成功,未登录
-//			bool login_ok = flagfrontconnect_ok && flagauthenticate_ok &&flaglogin_ok && noerrorcode
-//					&&flag_openmarket &&!front_tradelimit; //网络连接成功,完成登录
-////			bool market_ok = flagfrontconnect_ok && flagauthenticate_ok &&flaglogin_ok && noerrorcode
-////					&& !flag_holiday && flag_openmarket&&!front_tradelimit;//可以进行交易
-//
+		printf("ttttttttttttttttt ---> 111111111 \n");
+			bool flag_loginmarket = dateutil.CheckSHFELoginMarketTime(this->GetTrader()->GetDifSec());
+			bool flag_open = dateutil.CheckCloseAll(this->GetTrader()->GetDifSec());  //09:00 开始
+			bool flag_openmarket = dateutil.CheckSHFEOpenMarketTime(this->GetTrader()->GetDifSec());  //08:50 开始
+			bool flag_holiday = dateutil.TodayIsHoliday();
+
+			bool flagfrontconnect_ok = this->GetTrader()->GetCTraderSpi()->GetFlagFrontConnectFalg();  //网络连接成功
+			bool front_tradelimit = this->GetTrader()->GetFlagTradeLimit(); //网络限流
+			printf("ttttttttttttttttt ---> 111111111 aaa\n");
+			bool flag_predatastatus =datawrapper.GetPredataStatus();
+			bool flagauthenticate_ok = this->GetTrader()->GetCTraderSpi()->GetFlagAuthenticate();  //终端授权成功
+
+			bool flaglogin_ok = this->GetTrader()->GetCTraderSpi()->GetFlagLogin();    //登录成功
+			bool noerrorcode = this->GetTrader()->GetCTraderSpi()->GetConnectErrorCode()==0;    //网络连接无错误码
+
+			bool connect_error= !flagfrontconnect_ok &&!flaglogin_ok &&!noerrorcode;   //网络连接断开
+			bool ready_authenticate = flagfrontconnect_ok && !flagauthenticate_ok &&!flaglogin_ok
+					&& noerrorcode &&flag_openmarket; // 网络连接成功,未认证,未登录
+			bool ready_login = flagfrontconnect_ok && flagauthenticate_ok &&!flaglogin_ok
+					&& noerrorcode&&flag_openmarket; // 网络连接成功,认证成功,未登录
+			bool login_ok = flagfrontconnect_ok && flagauthenticate_ok &&flaglogin_ok && noerrorcode
+					&&flag_openmarket &&!front_tradelimit; //网络连接成功,完成登录
 //			bool market_ok = flagfrontconnect_ok && flagauthenticate_ok &&flaglogin_ok && noerrorcode
-//					&& !flag_holiday &&!front_tradelimit && flag_predatastatus;//可以进行交易
-//
-//			bool login_tradelimit = flagfrontconnect_ok && flagauthenticate_ok &&flaglogin_ok && noerrorcode
-//					&&flag_openmarket &&front_tradelimit; //登录成功,交易限制
-//			printf("ttttttttttttttttt ---> 22222222222222 \n");
-//			if(connect_error){
-//				printf("Trade:   网络链接断开!!!! \n");
-//				this->Fun_ConnectError();
-//			}
-//			else if(ready_login){
-//				printf("Trade:   网络链接成功,未登录,等待重新login!!!! \n");
-//				this->GetLogUtil()->WriteLog("Trade:  网络链接成功,未登录,等待重新login!!!! ");
-//				this->Fun_ReadyLogin();
-//			}
-//			else if(login_tradelimit){
-//				printf("Trade:限制流量 请重新登录 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   [%s] \n",
-//								dateutil.ConvertSHFETimetoSqlTime(this->GetTrader()->GetDifSec()).c_str());
-//				this->Fun_TradeLimit();
-//			}
-//			else if (market_ok)			{
-////				else if (1)			{
-//				printf("\nTrade[%s]:date ***************************************************************************   [%s] \n",
-//						this->GetUserid().c_str(),dateutil.ConvertSHFETimetoSqlTime(this->GetTrader()->GetDifSec()).c_str());
-//
-//				// 有开仓合约后,需要更新持仓表 用于浮动止损 止盈
-//				if(flag_open && flaglogin_ok){
-//					this->Fun_Trade_FlagOrderInsertCheck();
-//				}
-//
-//				this->GetTrader()->UpdateInvestPosition();
-//				this->GetTrader()->SyncHoldInvestMap();
-//				//
-////				//持仓策略
-//				this->Fun_Trade_HoldCheck_noSta();
-////				printf("\n");
-////				//开仓监测
-//				this->Fun_Trade_OpenCheck_noSta();
-//
-//				usleep(500000); //500ms
-//			}
-//			printf("ttttttttttttttttt ---> 333333333 \n");
-//			if (flaglogin_ok){
-//				this->AutoTask_BeforMorningbyUser();
-//				this->AutoTask_AfterNoonClosebyUser();
-//				this->AutoTask_BeforNightbyUser();
-//			}
-//			printf("ttttttttttttttttt ---> 44444444444444 \n");
-//			this->AutoTaskEveryDay();
+//					&& !flag_holiday && flag_openmarket&&!front_tradelimit;//可以进行交易
+
+			bool market_ok = flagfrontconnect_ok && flagauthenticate_ok &&flaglogin_ok && noerrorcode
+					&& !flag_holiday &&!front_tradelimit && flag_predatastatus;//可以进行交易
+
+			bool login_tradelimit = flagfrontconnect_ok && flagauthenticate_ok &&flaglogin_ok && noerrorcode
+					&&flag_openmarket &&front_tradelimit; //登录成功,交易限制
+			printf("ttttttttttttttttt ---> 22222222222222 \n");
+			if(connect_error){
+				printf("Trade:   网络链接断开!!!! \n");
+				this->Fun_ConnectError();
+			}
+			else if(ready_login){
+				printf("Trade:   网络链接成功,未登录,等待重新login!!!! \n");
+				this->GetLogUtil()->WriteLog("Trade:  网络链接成功,未登录,等待重新login!!!! ");
+				this->Fun_ReadyLogin();
+			}
+			else if(login_tradelimit){
+				printf("Trade:限制流量 请重新登录 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   [%s] \n",
+								dateutil.ConvertSHFETimetoSqlTime(this->GetTrader()->GetDifSec()).c_str());
+				this->Fun_TradeLimit();
+			}
+			else if (market_ok)			{
+//				else if (1)			{
+				printf("\nTrade[%s]:date ***************************************************************************   [%s] \n",
+						this->GetUserid().c_str(),dateutil.ConvertSHFETimetoSqlTime(this->GetTrader()->GetDifSec()).c_str());
+
+				// 有开仓合约后,需要更新持仓表 用于浮动止损 止盈
+				if(flag_open && flaglogin_ok){
+					this->Fun_Trade_FlagOrderInsertCheck();
+				}
+
+				this->GetTrader()->UpdateInvestPosition();
+				this->GetTrader()->SyncHoldInvestMap();
+				//
+//				//持仓策略
+				this->Fun_Trade_HoldCheck_noSta();
+//				printf("\n");
+//				//开仓监测
+				this->Fun_Trade_OpenCheck_noSta();
+
+				usleep(500000); //500ms
+			}
+			printf("ttttttttttttttttt ---> 333333333 \n");
+			if (flaglogin_ok){
+				this->AutoTask_BeforMorningbyUser();
+				this->AutoTask_AfterNoonClosebyUser();
+				this->AutoTask_BeforNightbyUser();
+			}
+			printf("ttttttttttttttttt ---> 44444444444444 \n");
+			this->AutoTaskEveryDay();
 	}
 
 	return;

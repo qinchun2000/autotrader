@@ -1352,7 +1352,10 @@ bool StrategyBase::ValidCheck_DayLine(const char* pinstrumentid,const char* trad
 	std::string dayline_lastdate =mysqldayline.GetLastDateTime(pinstrumentid);
 	time_t tm_lastdate=dateutil.ConvertSqlTimetoTimet(dayline_lastdate.c_str());
 
-	time_t tm_enddayline =  dateutil.CheckHisLastDayLinebyDate_ExcludeHoliday(tradingdate,this->GetDifSec());
+	std::string path = "/root/autotrader/config/";
+	std::string filename = "holiday.csv";
+	time_t tm_enddayline =  dateutil.CheckHisLastDayLinebyDate_ExcludeHoliday(
+			tradingdate,this->GetDifSec(),path.c_str(),filename.c_str());
 
 	time_t tm_tradingday;
 	tm_tradingday=dateutil.ConvertSqlTimetoTimet(str_sqltradingday.c_str());
@@ -1433,119 +1436,7 @@ bool StrategyBase::ValidCheck_DayLine(const char* pinstrumentid,const char* trad
 
 	return ret;
 }
-//bool StrategyBase::ValidCheck_DayLineNdays(const char* pinstrumentid,const char* tradingdate,const char* exchangeid,int N){
-//
-////	printf("ValidCheck_DayLine [%s]   交易日[%s]     exchange: %s \n",pinstrumentid,tradingdate,exchangeid);
-//	bool ret=false;
-//	MysqlDayLine mysqldayline;
-//	MysqlUtil mysqlutil(this->GetStrategyName().c_str());
-//	DateUtil dateutil;
-//	std::string str_sqltradingday = dateutil.ConvertDatetoSqlTime(tradingdate);
-//
-//	bool valid5;
-//	int count;
-//
-//	if(mysqldayline.Exist_Table(pinstrumentid))	{
-//		count=mysqldayline.Count_AllListsbyTableName(pinstrumentid);
-//		if(count==0)		{
-//			printf("ValidCheck_DayLineNdays [%s]   日线无数据,需要更新     exchange: %s \n",pinstrumentid,exchangeid);
-//			mysqldayline.CheckHttpDayLine(pinstrumentid,exchangeid);
-//			mysqlutil.CorrectDayLineByInstrument(pinstrumentid);
-//			count =mysqldayline.Count_AllListsbyTableName(pinstrumentid);
-//		}
-//	}
-//	else	{
-//		printf("ValidCheck_DayLineNdays [%s]   不存在日线数据表     exchange: %s \n",pinstrumentid,exchangeid);
-//		mysqldayline.CreateTable(pinstrumentid);
-//		mysqldayline.CheckHttpDayLine(pinstrumentid,exchangeid);
-//		mysqlutil.CorrectDayLineByInstrument(pinstrumentid);
-//		count =mysqldayline.Count_AllListsbyTableName(pinstrumentid);
-//	}
-//
-//	std::string dayline_lastdate =mysqldayline.GetLastDateTime(pinstrumentid);
-//	time_t tm_lastdate=dateutil.ConvertSqlTimetoTimet(dayline_lastdate.c_str());
-//
-//	time_t tm_enddayline =  dateutil.CheckHisLastDayLinebyDate_ExcludeHoliday(tradingdate,this->GetDifSec());
-//
-//	time_t tm_tradingday;
-//	tm_tradingday=dateutil.ConvertSqlTimetoTimet(str_sqltradingday.c_str());
-//
-//	//				printf("	dayline  ------>tm_yesterday [%s]: %ld    tm_dayline [%s]: %ld     \n  ",
-//	//												dayline_lastdate.c_str(),tm_yesterday,tradingday.c_str(),tm_dayline);
-//
-//	if (tm_lastdate ==tm_enddayline)	{
-//		valid5 =true;
-//	}
-//	else	{
-//		printf("ValidCheck_DayLineNdays  [%s]-----> 补齐数据 尝试   \n",pinstrumentid);
-//		mysqldayline.CheckHttpDayLine(pinstrumentid,exchangeid);
-//		mysqlutil.CorrectDayLineByInstrument(pinstrumentid);
-//		std::string dayline_lastdate_new =mysqldayline.GetLastDateTime(pinstrumentid);
-//		time_t tm_lastdate_new=dateutil.ConvertSqlTimetoTimet(dayline_lastdate_new.c_str());
-//		if (tm_lastdate_new ==tm_enddayline){
-//				valid5 =true;
-//		}
-//		else if(tm_lastdate_new >tm_enddayline){
-//			valid5 =true;
-//			std::string str_end =dateutil.ConvertTimetoSqlString(tm_enddayline);
-//			printf("ValidCheck_DayLineNdays[%s]-->	dayline 数据大于截止日期 ------>日线最后数据日 [%s]: %ld    截止日期 [%s]: %ld     \n  ",
-//								str_sqltradingday.c_str(),dayline_lastdate.c_str(),tm_lastdate,str_end.c_str(),tm_enddayline);
-//		}
-//		else{
-//			valid5=false;
-//			std::string str_end =dateutil.ConvertTimetoSqlString(tm_enddayline);
-//			printf("ValidCheck_DayLineNdays[%s]-->	dayline 数据缺失 截止日期不相同 ------>日线最后数据日 [%s]: %ld    截止日期 [%s]: %ld     \n  ",
-//					str_sqltradingday.c_str(),dayline_lastdate.c_str(),tm_lastdate,str_end.c_str(),tm_enddayline);
-////
-////			if (this->GetMysqlMaincontract()->Exist_DatabyInstrumentID(pinstrumentid)){
-//////				MainContractData mcdata;
-//////				mcdata = this->GetMysqlMaincontract()->Find_DatabyInstrumentID(pinstrumentid);
-//////				mcdata.ErrorDaylineCount=1;
-////
-////				this->GetMysqlMaincontract()->UpdateErrorDaylineCount(1,pinstrumentid);
-////
-////				printf("ValidCheck_DayLineNdays[%s]-->	更新数据错误的主力合约   \n",pinstrumentid);
-////			}
-////
-////			else if (this->GetMysqlMaincontract()->Exist_DatabyInstrumentIDNext(pinstrumentid)){
-//////				MainContractData mcdata;
-//////				mcdata = this->GetMysqlMaincontract()->Find_DatabyInstrumentIDNext(pinstrumentid);
-//////				mcdata.ErrorDaylineCount=1;
-////
-////				this->GetMysqlMaincontract()->UpdateErrorDaylineCountNext(1,pinstrumentid);
-////				printf("ValidCheck_DayLineNdays[%s]-->	更新数据错误的远月合约   \n",pinstrumentid);
-////			}
-////			else{
-////				printf("ValidCheck_DayLineNdays[%s]-->	数据错误的合约  未设置标识，策略轮询无法终止! \n",pinstrumentid);
-////			}
-//		}
-//	}
-//
-//
-//	bool valid0 = count > N;
-//
-//	bool b_holiday = dateutil.CheckHoliday_SqlTime(str_sqltradingday.c_str());   //判断当前交易日是否是假日
-//
-//	ret = valid0 && valid5 && !b_holiday;
-//
-//	if (!ret)	{
-//		if (b_holiday)		{
-//			printf("	当前交易日未假日: %s  --> 休市日 %s \n",pinstrumentid,str_sqltradingday.c_str());
-//		}
-//
-//		if (!valid0)			{
-//				printf("	行情数据不合规: %s  --> 日线数据长度[%d]不足 %d \n",pinstrumentid,count,N);
-//
-//		}
-//
-//		if (!valid5)			{
-//			printf("	历史数据不合规: %s  --> 日线数据缺失 最后更新日期[%s]  \n",pinstrumentid,dayline_lastdate.c_str());
-//		}
-//	}
-//
-//
-//	return ret;
-//}
+
 bool StrategyBase::ValidCheck_SectionPosition(const char*section)
 {
 	CodeUtil codeutil;

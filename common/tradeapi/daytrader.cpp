@@ -13,12 +13,12 @@ DayTrader::DayTrader() {
 }
 DayTrader::DayTrader(DataWrapper * datawrapper,const char* strategyname) {
 
-	printf("DayTrader  带参数构造函数-->初始开始  \n");
+//	printf("DayTrader  带参数构造函数-->初始开始  \n");
 	this->SetStrategyName(strategyname);
 	this->SetDataWrapper(datawrapper);
 	Config config(this->GetStrategyName().c_str());
 
-	printf("DayTrader 11111\n");
+//	printf("DayTrader 11111\n");
 	std::string logname="trader";
 	logname.append("_");
 	logname.append(config.GetUserID().c_str());

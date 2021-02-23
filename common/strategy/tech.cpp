@@ -399,8 +399,10 @@ bool Tech::ValidCheck_DayLineNdays(MysqlDayLine *mysqldayline,const char* pinstr
 
 	std::string dayline_lastdate =mysqldayline->GetLastDateTime(pinstrumentid);
 	time_t tm_lastdate=dateutil.ConvertSqlTimetoTimet(dayline_lastdate.c_str());
-
-	time_t tm_enddayline =  dateutil.CheckHisLastDayLinebyDate_ExcludeHoliday(tradingdate,this->GetDifSec());
+	std::string path = "/root/autotrader/config/";
+	std::string filename = "holiday.csv";
+	time_t tm_enddayline =  dateutil.CheckHisLastDayLinebyDate_ExcludeHoliday(
+			tradingdate,this->GetDifSec(),path.c_str(),filename.c_str());
 
 	time_t tm_tradingday;
 	tm_tradingday=dateutil.ConvertSqlTimetoTimet(str_sqltradingday.c_str());

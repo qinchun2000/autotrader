@@ -82,7 +82,7 @@ class DateUtil
 		bool CheckOpenMarketTime();
 		bool CheckMDOpenTime();
 		time_t CheckHisDayLine(const char *tradingday,int difsec);
-		time_t CheckHisLastDayLinebyDate_ExcludeHoliday(const char *tradingday,int DifSec);
+		time_t CheckHisLastDayLinebyDate_ExcludeHoliday(const char *tradingday,int DifSec,const char* path,const char* filename);
 		time_t CheckHisLastDayLine(vector<std::string> &temp,const char *tradingday,int difsec);
 		bool CheckHoliday_SqlTime(const char *tradingday_sqltime);
 
@@ -116,7 +116,8 @@ class DateUtil
 		bool IsHolidaybyNextTradingDay();
 	private :
 
-
+		std::string m_path = "/root/autotrader/config/";
+		std::string m_file = "holiday.csv";
 
 	};
 

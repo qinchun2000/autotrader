@@ -12,18 +12,21 @@ void DataWrapper::run()
 {
 
 	DateUtil dateutil;
-	std::cout<<"++++++++++++++++++++ datawrapper run "<<dateutil.GetCurrentDaySqlTime()<<endl;
+	//std::cout<<"++++++++++++++++++++ datawrapper run "<<dateutil.GetCurrentDaySqlTime()<<endl;
 	m_predatastatus=false;
 	SetContractLists();
-	InitDataStatusMap(); //20日日线数据是否合法
+//	std::cout<<"++++++++++++++++++++ datawrapper runaaa "<<dateutil.GetCurrentDaySqlTime()<<endl;
+//	InitDataStatusMap(); //20日日线数据是否合法
 //	InitCommisionMap();// 合约 margin
-	Init5DayCycleMap();// 合约的5日最高最低 实体线
+//	Init5DayCycleMap();// 合约的5日最高最低 实体线
 	InitTotalTRMap();  // atr20 前19日tr总和
 
 	m_predatastatus=true;
 	 struct timeval start, m,end;
 
+//	std::cout<<"++++++++++++++++++++ datawrapper run111 "<<dateutil.GetCurrentDaySqlTime()<<endl;
 	while(1){
+//	std::cout<<"++++++++++++++++++++ datawrapper runing  "<<dateutil.GetCurrentDaySqlTime()<<endl;
 
 		UpdateOpenStatus();
 
@@ -294,11 +297,14 @@ void DataWrapper::SetLimitContractLists()
 vector<MainContractData>* DataWrapper::GetLimitContractLists(){
 	return &this->m_limitcontractlist;
 }
+
+
 void DataWrapper::InitDataStatusMap()
 {
 //	bool ret=false;
 
 	try {
+		cout<<"+++++++++++++++++++ initDataStatusMap"       <<endl;
 		MysqlDayLine mysqldayline;
 		DateUtil dateutil;
 		std::string tradingday_sqltime = dateutil.ConvertDatetoSqlTime(m_tradingday.c_str());
@@ -310,16 +316,17 @@ void DataWrapper::InitDataStatusMap()
 
 			bool valid_dayline = ValidCheck_DayLineNdays(&mysqldayline,
 					item->InstrumentID,m_tradingday.c_str(),item->ExchangeID,20);
-//			cout<<"+++++++++++++++++++ 合约:"<<item->InstrumentID<<"       valid:"<<valid_dayline <<endl;
+			cout<<"+++++++++++++++++++ 合约:"<<item->InstrumentID<<"       valid:"<<valid_dayline <<endl;
 			std::string key =item->InstrumentID;
 			m_datastatusmap.insert(map<string,bool>::value_type(key,valid_dayline));
 		}
 
 	} catch(std::logic_error&) {
 			std::cout << "[exception caught DataWrapper::InitDataStatusMap >>> ]\n";
-
 	}
 }
+
+
 bool DataWrapper::FindDataStatus(const char* id)
 {
 
@@ -428,14 +435,14 @@ void DataWrapper::InitTotalTRMap()
 		}
 
 	} catch(std::logic_error&) {
-			std::cout << "[exception caught DataWrapper::Init5DayCycleMap >>> ]\n";
+			std::cout << "[exception caught DataWrapper::InitTotalTRMap >>> ]\n";
 
 	}
 
-//	std::cout<<"++++++++++++++++++++totaltr map size:"<<m_totaltrmap.size()<<endl;
-//	 for(map<std::string,double >::iterator iter=m_totaltrmap.begin(); iter!=m_totaltrmap.end(); iter++){
-//		 cout<<"+++++++++++++++++++ 合约:"<<iter->first<<"       totaltr:"<<iter->second  <<endl;
-//	 }
+	std::cout<<"++++++++++++++++++++totaltr map size:"<<m_totaltrmap.size()<<endl;
+	 for(map<std::string,double >::iterator iter=m_totaltrmap.begin(); iter!=m_totaltrmap.end(); iter++){
+		 cout<<"+++++++++++++++++++ 合约:"<<iter->first<<"       totaltr:"<<iter->second  <<endl;
+	 }
 //		 gettimeofday( &end, NULL );
 //				printf("/////////////////end   ----------------------> %ld.%ld\n", end.tv_sec, end.tv_usec);
 //	return ret;
@@ -1884,7 +1891,7 @@ bool DataWrapper::ValidCheck_DayLineNdays(MysqlDayLine *mysqldayline,const char*
 //	printf("ValidCheck_DayLine [%s]   交易日[%s]     exchange: %s \n",pinstrumentid,tradingdate,exchangeid);
 	bool ret=false;
 
-//	MysqlUtil mysqlutil(this->GetStrategyName().c_str());
+
 	DateUtil dateutil;
 	std::string str_sqltradingday = dateutil.ConvertDatetoSqlTime(tradingdate);
 
@@ -1897,6 +1904,7 @@ bool DataWrapper::ValidCheck_DayLineNdays(MysqlDayLine *mysqldayline,const char*
 			printf("ValidCheck_DayLineNdays [%s]   日线无数据,需要更新     exchange: %s \n",pinstrumentid,exchangeid);
 
 			count =mysqldayline->Count_AllListsbyTableName(pinstrumentid);
+	printf("+++++++ValidCheck_DayLineNdays  [%s]-----> ccc \n",pinstrumentid);
 		}
 	}
 	else	{
@@ -1905,11 +1913,18 @@ bool DataWrapper::ValidCheck_DayLineNdays(MysqlDayLine *mysqldayline,const char*
 
 		count =mysqldayline->Count_AllListsbyTableName(pinstrumentid);
 	}
+	printf("+++++++ValidCheck_DayLineNdays  [%s]-----> bbb \n",pinstrumentid);
 
 	std::string dayline_lastdate =mysqldayline->GetLastDateTime(pinstrumentid);
+	printf("+++++++ValidCheck_DayLineNdays  [%s]-----> bbb1 \n",pinstrumentid);
 	time_t tm_lastdate=dateutil.ConvertSqlTimetoTimet(dayline_lastdate.c_str());
+	printf("+++++++ValidCheck_DayLineNdays  [%s]-----> bbb2 \n",pinstrumentid);
 
-	time_t tm_enddayline =  dateutil.CheckHisLastDayLinebyDate_ExcludeHoliday(tradingdate,this->GetDifSec());
+	std::string path = "/root/autotrader/config/";
+	std::string filename = "holiday.csv";
+	time_t tm_enddayline =  dateutil.CheckHisLastDayLinebyDate_ExcludeHoliday(
+			tradingdate,this->GetDifSec(),path.c_str(),filename.c_str());
+	printf("+++++++ValidCheck_DayLineNdays  [%s]-----> bbb3 \n",pinstrumentid);
 
 	time_t tm_tradingday;
 	tm_tradingday=dateutil.ConvertSqlTimetoTimet(str_sqltradingday.c_str());
@@ -1944,6 +1959,7 @@ bool DataWrapper::ValidCheck_DayLineNdays(MysqlDayLine *mysqldayline,const char*
 	}
 
 
+	printf("+++++++ValidCheck_DayLineNdays  [%s]-----> aaa \n",pinstrumentid);
 	bool valid0 = count > N;
 
 	bool b_holiday = dateutil.CheckHoliday_SqlTime(str_sqltradingday.c_str());   //判断当前交易日是否是假日
@@ -1964,10 +1980,13 @@ bool DataWrapper::ValidCheck_DayLineNdays(MysqlDayLine *mysqldayline,const char*
 			printf("	历史数据不合规: %s  --> 日线数据缺失 最后更新日期[%s]  \n",pinstrumentid,dayline_lastdate.c_str());
 		}
 	}
+	printf("+++++++ValidCheck_DayLineNdays  [%s]-----> end \n",pinstrumentid);
 
 
 	return ret;
 }
+
+
 void DataWrapper::InitialSectionMap()
 {
 	MysqlSection mysqlsection;

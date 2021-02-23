@@ -2,11 +2,11 @@
 
 
 TradeBase::TradeBase() {
-	std::cout<<"TradeBase 无参构造开始!"<<std::endl;
+//	std::cout<<"TradeBase 无参构造开始!"<<std::endl;
 	// 设置用户名 用户密码
 //	SetUserLoginField();
 
-	std::cout<<"TradeBase 无参构造完成!"<<std::endl;
+//	std::cout<<"TradeBase 无参构造完成!"<<std::endl;
 }
 
 TradeBase::~TradeBase() {
