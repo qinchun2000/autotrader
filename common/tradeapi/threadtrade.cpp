@@ -610,14 +610,16 @@ void ThreadTrade::Run(){
 	datawrapper.SetUserID(this->GetUserid().c_str());
 	datawrapper.InitCommisionMap();
 
-
 #ifdef DEBUG
 	printf("Trade:开始启动程序  --->>>> datawrapper init fin! \n");
 #endif
+
 	DayTrader *ptrader = new DayTrader(&datawrapper,this->GetStrategyName().c_str());
-#ifdef DEBUG
+
+	#ifdef DEBUG
 	printf("Trade:开始启动程序  --->>>>day trader begin ! \n");
 #endif
+
 	this->SetTrader(ptrader);
 	this->GetTrader()->SetMysqlAsset(&mysqlasset);
 	this->GetTrader()->SetMysqlInvestPosition(&mysqlinvestposition);
@@ -656,7 +658,7 @@ void ThreadTrade::Run(){
 	while(1)		{
 		sleep(3);
 
-		printf("ttttttttttttttttt ---> 111111111 \n");
+
 			bool flag_loginmarket = dateutil.CheckSHFELoginMarketTime(this->GetTrader()->GetDifSec());
 			bool flag_open = dateutil.CheckCloseAll(this->GetTrader()->GetDifSec());  //09:00 开始
 			bool flag_openmarket = dateutil.CheckSHFEOpenMarketTime(this->GetTrader()->GetDifSec());  //08:50 开始
@@ -664,7 +666,7 @@ void ThreadTrade::Run(){
 
 			bool flagfrontconnect_ok = this->GetTrader()->GetCTraderSpi()->GetFlagFrontConnectFalg();  //网络连接成功
 			bool front_tradelimit = this->GetTrader()->GetFlagTradeLimit(); //网络限流
-			printf("ttttttttttttttttt ---> 111111111 aaa\n");
+
 			bool flag_predatastatus =datawrapper.GetPredataStatus();
 			bool flagauthenticate_ok = this->GetTrader()->GetCTraderSpi()->GetFlagAuthenticate();  //终端授权成功
 
@@ -686,7 +688,7 @@ void ThreadTrade::Run(){
 
 			bool login_tradelimit = flagfrontconnect_ok && flagauthenticate_ok &&flaglogin_ok && noerrorcode
 					&&flag_openmarket &&front_tradelimit; //登录成功,交易限制
-			printf("ttttttttttttttttt ---> 22222222222222 \n");
+
 			if(connect_error){
 				printf("Trade:   网络链接断开!!!! \n");
 				this->Fun_ConnectError();
@@ -716,19 +718,19 @@ void ThreadTrade::Run(){
 				//
 //				//持仓策略
 				this->Fun_Trade_HoldCheck_noSta();
-//				printf("\n");
+
 //				//开仓监测
 				this->Fun_Trade_OpenCheck_noSta();
 
 				usleep(500000); //500ms
 			}
-			printf("ttttttttttttttttt ---> 333333333 \n");
+
 			if (flaglogin_ok){
 				this->AutoTask_BeforMorningbyUser();
 				this->AutoTask_AfterNoonClosebyUser();
 				this->AutoTask_BeforNightbyUser();
 			}
-			printf("ttttttttttttttttt ---> 44444444444444 \n");
+
 			this->AutoTaskEveryDay();
 	}
 
