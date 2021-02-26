@@ -75,7 +75,8 @@ void Turtle::run(){
 	char logbuf[1024];
 
 	sprintf(logbuf,"Turtle:  ------> enter   %s",dateutil.GetCurrentSqlTimeString().c_str());
-	logutil.WriteLog(logbuf);
+
+	this->GetLogUtil()->WriteLog(logbuf);
 	struct timeval start, m,end;
 
 	while(1){
@@ -89,11 +90,11 @@ void Turtle::run(){
 
 
 			sprintf(logbuf,"Turtle:  ------> strategyname %s ------>   %s",this->GetStrategyName().c_str(),dateutil.GetCurrentSqlTimeString().c_str());
-			logutil.WriteLog(logbuf);
+			this->GetLogUtil()->WriteLog(logbuf);
 
 			sprintf(logbuf,">>>>>>>>>>>>>>%s::run  -------------------------------------[%ld.%ld]----------------------------------------->>>>>>   [%s] \n",
 					 this->GetStrategyName().c_str(),start.tv_sec, start.tv_usec,dateutil.GetCurrentSqlTimeString().c_str());
-			logutil.WriteLog(logbuf);
+			this->GetLogUtil()->WriteLog(logbuf);
 
 			this->Open();
 			if (!dateutil.CheckSHFEEndCloseMarketTime(this->GetDifSec())){
@@ -129,19 +130,19 @@ void  Turtle::Open()
 	std::string funname=">>>>>>>>>Turtle::Open";
 	if(this->GetDataWrapper()->GetHolidayStatus()){
 		sprintf(logbuf,"%s----->本交易日为假日,不运行策略!!!!!         \n",funname.c_str());
-		logutil.WriteLog(logbuf);
+		this->GetLogUtil()->WriteLog(logbuf);
 		return;
 	}
 
 	if(this->GetDataWrapper()->GetNextHolidayStatus()){
 		sprintf(logbuf,"%s----->下一个交易日为假日,本交易日不运行策略!!!!!         \n",funname.c_str());
-		logutil.WriteLog(logbuf);
+		this->GetLogUtil()->WriteLog(logbuf);
 		return;
 	}
 
 	if(this->GetDataWrapper()->GetFridayNightStatus()){
 		sprintf(logbuf,"%s----->周五夜盘不运行策略!!!!          \n",funname.c_str());
-		logutil.WriteLog(logbuf);
+		this->GetLogUtil()->WriteLog(logbuf);
 		return;
 	}
 
@@ -345,8 +346,8 @@ void  Turtle::Open()
 			OpenSignalUpdate(&signal);
 		}
 		else	{
-			sprintf(logbuf,"开仓信号    ??????????? --> %s\n", pinstrumentID);
-			logutil.WriteLog(logbuf);
+			sprintf(logbuf,"开仓信号    ??????????? --> %s\n", item->InstrumentID);
+			this->GetLogUtil()->WriteLog(logbuf);
 			SignalDispearCheck(signalname);
 		}
 
