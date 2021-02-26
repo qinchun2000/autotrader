@@ -71,7 +71,12 @@ void Turtle::run(){
 	this->SetDifSec(this->GetDataWrapper()->GetDifSec());
 //	this->UpdateTradingDay();
 //	std::cout<<"Strategy::run sta "<<this->GetTradingDay()<<std::endl;
-	 struct timeval start, m,end;
+
+	char logbuf[1024];
+
+	sprintf(logbuf,"Turtle:  ------> enter   %s",dateutil.GetCurrentSqlTimeString().c_str());
+	logutil.WriteLog(logbuf);
+	struct timeval start, m,end;
 
 	while(1){
 
@@ -81,14 +86,21 @@ void Turtle::run(){
 		if(this->GetDataWrapper()->GetPredataStatus()){
 
 			gettimeofday( &start, NULL );
-			printf(">>>>>>>>>>>>>>%s::run  -------------------------------------[%ld.%ld]----------------------------------------->>>>>>   [%s] \n",
+
+
+			sprintf(logbuf,"Turtle:  ------> strategyname %s ------>   %s",this->GetStrategyName().c_str(),dateutil.GetCurrentSqlTimeString().c_str());
+			logutil.WriteLog(logbuf);
+
+			sprintf(logbuf,">>>>>>>>>>>>>>%s::run  -------------------------------------[%ld.%ld]----------------------------------------->>>>>>   [%s] \n",
 					 this->GetStrategyName().c_str(),start.tv_sec, start.tv_usec,dateutil.GetCurrentSqlTimeString().c_str());
-				this->Open();
-				if (!dateutil.CheckSHFEEndCloseMarketTime(this->GetDifSec())){
+			logutil.WriteLog(logbuf);
+
+			this->Open();
+			if (!dateutil.CheckSHFEEndCloseMarketTime(this->GetDifSec())){
 //					this->QueueingOpenPriceChange_SignalCheck();
-					this->ClosePriceSeek();
-				}
-				this->Close();
+				this->ClosePriceSeek();
+			}
+			this->Close();
 
 		}
 	usleep(250000);
@@ -116,17 +128,20 @@ void  Turtle::Open()
 
 	std::string funname=">>>>>>>>>Turtle::Open";
 	if(this->GetDataWrapper()->GetHolidayStatus()){
-		printf("%s----->本交易日为假日,不运行策略!!!!!         \n",funname.c_str());
+		sprintf(logbuf,"%s----->本交易日为假日,不运行策略!!!!!         \n",funname.c_str());
+		logutil.WriteLog(logbuf);
 		return;
 	}
 
 	if(this->GetDataWrapper()->GetNextHolidayStatus()){
-		printf("%s----->下一个交易日为假日,本交易日不运行策略!!!!!         \n",funname.c_str());
+		sprintf(logbuf,"%s----->下一个交易日为假日,本交易日不运行策略!!!!!         \n",funname.c_str());
+		logutil.WriteLog(logbuf);
 		return;
 	}
 
 	if(this->GetDataWrapper()->GetFridayNightStatus()){
-		printf("%s----->周五夜盘不运行策略!!!!          \n",funname.c_str());
+		sprintf(logbuf,"%s----->周五夜盘不运行策略!!!!          \n",funname.c_str());
+		logutil.WriteLog(logbuf);
 		return;
 	}
 
@@ -330,7 +345,8 @@ void  Turtle::Open()
 			OpenSignalUpdate(&signal);
 		}
 		else	{
-//						printf("开仓信号    ??????????? --> %s\n", pinstrumentID);
+			sprintf(logbuf,"开仓信号    ??????????? --> %s\n", pinstrumentID);
+			logutil.WriteLog(logbuf);
 			SignalDispearCheck(signalname);
 		}
 
