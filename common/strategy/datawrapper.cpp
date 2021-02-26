@@ -19,10 +19,8 @@ void DataWrapper::run()
 {
 
 	DateUtil dateutil;
-	//std::cout<<"++++++++++++++++++++ datawrapper run "<<dateutil.GetCurrentDaySqlTime()<<endl;
 	m_predatastatus=false;
 	SetContractLists();
-//	std::cout<<"++++++++++++++++++++ datawrapper runaaa "<<dateutil.GetCurrentDaySqlTime()<<endl;
 	InitDataStatusMap(); //20日日线数据是否合法
 //	InitCommisionMap();// 合约 margin
 //	Init5DayCycleMap();// 合约的5日最高最低 实体线
@@ -438,7 +436,6 @@ std::shared_ptr<CycleData> DataWrapper::Find5DayCycle(const char* id)
 
 void DataWrapper::InitTotalTRMap()
 {
-//	bool ret=false;
 
 	try {
 		MysqlDayLine mysqldayline;
@@ -455,11 +452,22 @@ void DataWrapper::InitTotalTRMap()
 			if(totaltr>0){
 				m_totaltrmap.insert(map<string,double>::value_type(key,totaltr));
 			}
+			if (totaltr>0){
+				sprintf (m_logbuf,"InitTotalTRMap totalTR ok  ... %.2f ",totaltr);
+				m_plogutil->WriteLog(m_logbuf);
+			}
+			else{
+				sprintf (m_logbuf,"InitTotalTRMap  error  totalTR caculetor ... %.2f",totaltr);
+				m_plogutil->WriteLog(m_logbuf);
+			}
+
 
 		}
 
 	} catch(std::logic_error&) {
-			std::cout << "[exception caught DataWrapper::InitTotalTRMap >>> ]\n";
+
+			sprintf (m_logbuf,"[exception caught DataWrapper::InitTotalTRMap >>> ]");
+			m_plogutil->WriteLog(m_logbuf);
 
 	}
 
@@ -469,9 +477,7 @@ void DataWrapper::InitTotalTRMap()
 		 sprintf (m_logbuf,"-----> ins: %s  %f ",iter->first.c_str(),iter->second);
 		 m_plogutil->WriteLog(m_logbuf);
 	 }
-//		 gettimeofday( &end, NULL );
-//				printf("/////////////////end   ----------------------> %ld.%ld\n", end.tv_sec, end.tv_usec);
-//	return ret;
+
 }
 
 double DataWrapper::FindTotalTR(const char* id)
