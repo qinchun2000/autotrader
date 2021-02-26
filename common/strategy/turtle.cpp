@@ -161,8 +161,9 @@ void  Turtle::Open()
 			item != this->GetDataWrapper()->GetContractLists()->end(); item++){
 
 //			gettimeofday( &start, NULL );
-//						printf(">>>>>>>>>>>>>>>>>>start ----------------> %ld.%ld\n", start.tv_sec, start.tv_usec);
-//			std::cout<<">>>>>>>>>>>>>>--------------start:"<<start.tv_sec<<"."<<start.tv_usec<<endl;
+		sprintf(logbuf,">>>>>>>>>>>>>>>>>>start %s----------------> %ld.%ld",item->InstrumentID, start.tv_sec, start.tv_usec);
+		this->GetLogUtil()->WriteLog(logbuf);
+		//			std::cout<<">>>>>>>>>>>>>>--------------start:"<<start.tv_sec<<"."<<start.tv_usec<<endl;
 		std::string signalname;
 		signalname=item->InstrumentID;
 		signalname.append("_");
@@ -174,8 +175,9 @@ void  Turtle::Open()
 //			gettimeofday( &m, NULL );
 //			std::cout<<">>>>>>>>>>>>>>--------------m:"<<m.tv_sec<<"."<<m.tv_usec<<"     合约:"<<item->InstrumentID<<endl;
 		if(night&& strcmp(item->DayNight,"Day")==0){
-//				printf(">>>>>>>>>Strategy::Open_Turtle  >>>GetContractLists----->  无夜盘！----->ProductID:%s   exchangeid: %s \n",
-//						item->ProductID, item->ExchangeID);
+				sprintf(logbuf,">>>>>>>>>Strategy::Open_Turtle  >>>GetContractLists----->  无夜盘！----->ProductID:%s   exchangeid: %s \n",
+						item->ProductID, item->ExchangeID);
+				this->GetLogUtil()->WriteLog(logbuf);
 			continue;
 		}
 
@@ -183,13 +185,12 @@ void  Turtle::Open()
 		memset(&gbdata,0,sizeof(gbdata));
 		this->GetDataWrapper()->OutputGlobalViewData(&gbdata);
 
-		if(strcmp(gbdata.AbsMaxUpDownIns,item->InstrumentID)!=0){
-			continue;
-		}
+
 //////////////////////开盘时间验证///////////////////
 		bool opentime = dateutil.CheckOpenTime(this->GetDifSec(),item->ExchangeID,item->ProductID);
 		if (!opentime){
-			printf(">>>>>>>>>   策略验证 --> [%s]非开盘时间 !!!  \n",item->InstrumentID);
+			sprintf(logbuf,">>>>>>>>>   策略验证 --> [%s]非开盘时间 !!!  \n",item->InstrumentID);
+			this->GetLogUtil()->WriteLog(logbuf);
 			continue;
 		}
 
@@ -197,7 +198,8 @@ void  Turtle::Open()
 		bool valid_dayline = this->GetDataWrapper()->FindDataStatus(item->InstrumentID);
 
 		if (!valid_dayline){
-			printf(">>>>>>>>>   策略验证 --> [%s]20天日线数据时不合规!!!  \n",item->InstrumentID);
+			sprintf(logbuf,">>>>>>>>>   策略验证 --> [%s]20天日线数据时不合规!!!  \n",item->InstrumentID);
+			this->GetLogUtil()->WriteLog(logbuf);
 			continue;
 		}
 
@@ -208,11 +210,13 @@ void  Turtle::Open()
 		if (!valid_redisdepth){
 
 			if(strcmp(item->DayNight ,"Day")==0  && dateutil.CheckSHFENightTime(this->GetDifSec())) {
-//					printf(">>>>>>>>>	请检查白盘合约在夜盘无数据？: %s    \n",item->InstrumentID);
+				sprintf(logbuf,">>>>>>>>>	请检查白盘合约在夜盘无数据？: %s    \n",item->InstrumentID);
+				this->GetLogUtil()->WriteLog(logbuf);
 				//正常情况 白盘合约在夜盘无数据
 			}
 			else {
-				printf(">>>>>>>>>   Turtle策略验证 --> [%s]不存在Redis行情数据 !!!  请检查行情是否接收正常？   \n",item->InstrumentID);
+				sprintf(logbuf,">>>>>>>>>   Turtle策略验证 --> [%s]不存在Redis行情数据 !!!  请检查行情是否接收正常？   \n",item->InstrumentID);
+				this->GetLogUtil()->WriteLog(logbuf);
 			}
 
 			continue;
@@ -222,7 +226,8 @@ void  Turtle::Open()
 		depthmarket = this->GetRedisDepthMarket()->GetDepthMarket(item->InstrumentID);
 		bool valid_depthmarket = this->ValidCheck_DepthMarket(&depthmarket);
 		if (!valid_depthmarket){
-//				printf(">>>>>>>>>  策略验证 --> [%s]行情数据时不合规!!!  \n",item->InstrumentID);
+			sprintf(logbuf,">>>>>>>>>  策略验证 --> [%s]行情数据时不合规!!!  \n",item->InstrumentID);
+			this->GetLogUtil()->WriteLog(logbuf);
 			continue;
 		}
 
@@ -240,13 +245,12 @@ void  Turtle::Open()
 		}
 		else{
 			valid_stoprange=false;
-//				printf(">>>>>>>>>	Strategy:Open_Turtle stoprange  数据异常---> %.3f   ---->  %s  \n",atr20,item->InstrumentID);
-
+				sprintf(logbuf,">>>>>>>>>	Strategy:Open_Turtle stoprange  数据异常---> %.3f   ---->  %s  \n",atr20,item->InstrumentID);
+				this->GetLogUtil()->WriteLog(logbuf);
 		}
 
 		if (!valid_stoprange){
 
-//				printf(">>>>>>>>>	策略验证 -->  止损区间价格不合规 --> %s atr20:%.2f \n",	item->InstrumentID,atr20);
 			sprintf(logbuf,"	Strategy::Open_Turtle 信号未激活  止损区间价格不合规 --> %s atr20:%.2f \n",
 					item->InstrumentID,atr20);
 			this->GetLogUtil()->WriteLog(logbuf);
@@ -260,12 +264,31 @@ void  Turtle::Open()
 		bool longcond_cycle = depthmarket.LastPrice >cycledata.High20;
 		bool condition_long =  false;
 
+
 		//空头行情
 		bool shortcond_cycle =  depthmarket.LastPrice < cycledata.Low20;
 		bool condition_short =  false;
 
 		 condition_long =  longcond_cycle ;
 		 condition_short =  shortcond_cycle ;
+
+		 if (longcond_cycle){
+			sprintf(logbuf,"	Strategy::Open_Turtle  >>>>>>>>>>>>> %s high20:%.2f  low20: %.2f lastprice: %.2f",
+					item->InstrumentID,cycledata.High20,cycledata.Low20,depthmarket.LastPrice);
+			this->GetLogUtil()->WriteLog(logbuf);
+		 }
+
+		 else if (shortcond_cycle){
+			sprintf(logbuf,"	Strategy::Open_Turtle  <<<<<<<<<<<<< %s high20:%.2f  low20: %.2f lastprice: %.2f",
+					item->InstrumentID,cycledata.High20,cycledata.Low20,depthmarket.LastPrice);
+			this->GetLogUtil()->WriteLog(logbuf);
+		 }
+		 else {
+
+			sprintf(logbuf,"	Strategy::Open_Turtle --> %s high20:%.2f  low20: %.2f lastprice: %.2f",
+					item->InstrumentID,cycledata.High20,cycledata.Low20,depthmarket.LastPrice);
+			this->GetLogUtil()->WriteLog(logbuf);
+		 }
 
 
 		std::shared_ptr<Commission>  commssion=this->GetDataWrapper()->FindCommissionData(item->ProductID);
@@ -277,8 +300,9 @@ void  Turtle::Open()
 
 		bool valid_sedimentary = sedimentary>this->GetMaxSedimentary();
 		if (!valid_sedimentary){
-			printf(">>>>>>>>>	策略验证 -->信号未激活  合约[%s] 沉淀资金:%.2f不符合 沉淀资金低于[%.2f]亿元,无法交易!!!  \n",item->InstrumentID,
+			sprintf(logbuf,">>>>>>>>>	策略验证 -->信号未激活  合约[%s] 沉淀资金:%.2f不符合 沉淀资金低于[%.2f]亿元,无法交易!!!  \n",item->InstrumentID,
 					sedimentary,this->GetMaxSedimentary());
+			this->GetLogUtil()->WriteLog(logbuf);
 //					printf("	信号未激活  沉淀资金不符合--> %s OpenInterest:%.3f VolumeMultiple:%d Margin: %.2f LastPrice:%.3f  \n",
 //							pinstrumentid,depthmarket.OpenInterest,depthmarket.VolumeMultiple,commission.Margin,depthmarket.LastPrice);
 
@@ -296,16 +320,18 @@ void  Turtle::Open()
 
 			int position =  this->GetPositionByATR(item->InstrumentID, depthmarket,atr20,commssion->Margin);
 			if(position==0){
-				printf(">>>>>>>>>	Strategy::Open_Turtle--> 出现开仓信号 %s ,基于风控最终开仓量为0!!!----> %d   \n",
+				sprintf(logbuf,">>>>>>>>>	Strategy::Open_Turtle--> 出现开仓信号 %s ,基于风控最终开仓量为0!!!----> %d   \n",
 							signalname.c_str(),position);
+				this->GetLogUtil()->WriteLog(logbuf);
 //						sprintf(logbuf,"Strategy::Open_CalendarSpreadSignal--> 出现开仓信号 %s ,基于风控最终开仓量为0!!!----> %d   \n",
 //								signalname.c_str(),position);
 //						GetLogUtil->WriteLog(logbuf);
 			}
 			else {
 
-				printf(">>>>>>>>>	Strategy::Open_Turtle 开多 --> %s 现价:%.2f  --->%s 可开仓位: %d \n",
+				sprintf(logbuf,">>>>>>>>>	Strategy::Open_Turtle 开多 --> %s 现价:%.2f  --->%s 可开仓位: %d \n",
 						item->InstrumentID,depthmarket.LastPrice,depthmarket.UpdateTime ,position);
+				this->GetLogUtil()->WriteLog(logbuf);
 			}
 			Signal signal;
 			strcpy(signal.InstrumentID,item->InstrumentID);
@@ -324,15 +350,17 @@ void  Turtle::Open()
 
 			int position =  this->GetPositionByATR(item->InstrumentID, depthmarket,atr20,commssion->Margin);
 			if(position==0){
-				printf(">>>>>>>>>	Strategy::Open_Turtle--> 出现开仓信号 %s ,基于风控最终开仓量为0!!!----> %d   \n",
-																		signalname.c_str(),position);
+				sprintf(logbuf,">>>>>>>>>	Strategy::Open_Turtle--> 出现开仓信号 %s ,基于风控最终开仓量为0!!!----> %d   \n",
+								signalname.c_str(),position);
+				this->GetLogUtil()->WriteLog(logbuf);
 //						sprintf(logbuf,"Strategy::Open_CalendarSpreadSignal--> 出现开仓信号 %s ,基于风控最终开仓量为0!!!----> %d   \n",
 //								signalname.c_str(),position);
 //						this->GetLogUtil()->->WriteLog(logbuf);
 			}
 			else {
-			printf(">>>>>>>>>	Strategy::Open_Turtle 开空 --> %s 现价:%.2f    --->%s   可开仓位: %d \n",
+			sprintf(logbuf,">>>>>>>>>	Strategy::Open_Turtle 开空 --> %s 现价:%.2f    --->%s   可开仓位: %d \n",
 					item->InstrumentID,depthmarket.LastPrice,depthmarket.UpdateTime ,position);
+			this->GetLogUtil()->WriteLog(logbuf);
 			}
 			Signal signal;
 			strcpy(signal.InstrumentID,item->InstrumentID);

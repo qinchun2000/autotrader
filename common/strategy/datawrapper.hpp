@@ -29,6 +29,7 @@
 #include "dateutil.hpp"
 #include "redismd.hpp"
 #include "threadbase.hpp"
+#include "logutil.hpp"
 
 using namespace std;
 using namespace log4cplus;
@@ -238,6 +239,8 @@ private :
 
 	std::mutex m_gviewmutex;
 	GlobalViewData m_globalview;
+	char m_logbuf[1024];
+	LogUtil * m_plogutil=nullptr;
 };
 
 #endif /* _STADAY_HPP */

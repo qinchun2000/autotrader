@@ -4,6 +4,13 @@
 DataWrapper::DataWrapper() {
 
 
+	std::string logname="datawrapper";
+	std::string path="/var/log/autotrader/data.log";
+	m_plogutil = new LogUtil(logname.c_str(),path.c_str());
+	sprintf (m_logbuf,"datawrapper 构造函数... ");
+	m_plogutil->WriteLog(m_logbuf);
+
+
 }
 DataWrapper::~DataWrapper() {
 
@@ -16,17 +23,18 @@ void DataWrapper::run()
 	m_predatastatus=false;
 	SetContractLists();
 //	std::cout<<"++++++++++++++++++++ datawrapper runaaa "<<dateutil.GetCurrentDaySqlTime()<<endl;
-//	InitDataStatusMap(); //20日日线数据是否合法
+	InitDataStatusMap(); //20日日线数据是否合法
 //	InitCommisionMap();// 合约 margin
 //	Init5DayCycleMap();// 合约的5日最高最低 实体线
 	InitTotalTRMap();  // atr20 前19日tr总和
 
 	m_predatastatus=true;
-	 struct timeval start, m,end;
+	struct timeval start, m,end;
 
-//	std::cout<<"++++++++++++++++++++ datawrapper run111 "<<dateutil.GetCurrentDaySqlTime()<<endl;
+	sprintf (m_logbuf,"datawrapper ----------------------->run ");
+	m_plogutil->WriteLog(m_logbuf);
+
 	while(1){
-//	std::cout<<"++++++++++++++++++++ datawrapper runing  "<<dateutil.GetCurrentDaySqlTime()<<endl;
 
 		UpdateOpenStatus();
 
@@ -305,6 +313,11 @@ void DataWrapper::InitDataStatusMap()
 
 	try {
 		cout<<"+++++++++++++++++++ initDataStatusMap"       <<endl;
+
+		sprintf (m_logbuf,"initDataStatusMap  Enter... ");
+		m_plogutil->WriteLog(m_logbuf);
+
+
 		MysqlDayLine mysqldayline;
 		DateUtil dateutil;
 		std::string tradingday_sqltime = dateutil.ConvertDatetoSqlTime(m_tradingday.c_str());
@@ -316,13 +329,23 @@ void DataWrapper::InitDataStatusMap()
 
 			bool valid_dayline = ValidCheck_DayLineNdays(&mysqldayline,
 					item->InstrumentID,m_tradingday.c_str(),item->ExchangeID,20);
-			cout<<"+++++++++++++++++++ 合约:"<<item->InstrumentID<<"       valid:"<<valid_dayline <<endl;
+
+			if (valid_dayline){
+				sprintf (m_logbuf,"initDataStatusMap  日线数据检查合法 ... ");
+				m_plogutil->WriteLog(m_logbuf);
+			}
+			else{
+				sprintf (m_logbuf,"initDataStatusMap  error  dayline  check ... ");
+				m_plogutil->WriteLog(m_logbuf);
+			}
+
 			std::string key =item->InstrumentID;
 			m_datastatusmap.insert(map<string,bool>::value_type(key,valid_dayline));
 		}
 
 	} catch(std::logic_error&) {
-			std::cout << "[exception caught DataWrapper::InitDataStatusMap >>> ]\n";
+			sprintf (m_logbuf,"[exception caught DataWrapper::InitDataStatusMap >>> ] ");
+			m_plogutil->WriteLog(m_logbuf);
 	}
 }
 
@@ -331,17 +354,18 @@ bool DataWrapper::FindDataStatus(const char* id)
 {
 
 	try {
-			std::lock_guard<std::mutex>lck(m_datastatusmutex);  // 函数结束时，自动析构解锁
-			 map<std::string,bool >::iterator iter;
+			  std::lock_guard<std::mutex>lck(m_datastatusmutex);  // 函数结束时，自动析构解锁
+			  map<std::string,bool >::iterator iter;
 			  iter = m_datastatusmap.find(id);
 
 			  if(iter != m_datastatusmap.end()){
 //				  cout<<"+++++++++++++++++ FindDataStatus datastatus:"<<iter->second<<endl;
 				 return iter->second;
 			  }
-
 			  else{
-				  cout<<"+++++++++++++FindDataStatus Do not Find"<<endl;
+
+				  sprintf(m_logbuf," ins---->  %s  DataWrapper::FindDataStatus  Do not Find",id);
+				  m_plogutil->WriteLog(m_logbuf);
 				  return false;
 			  }
 
@@ -439,9 +463,11 @@ void DataWrapper::InitTotalTRMap()
 
 	}
 
-	std::cout<<"++++++++++++++++++++totaltr map size:"<<m_totaltrmap.size()<<endl;
+	 sprintf (m_logbuf,"-----> : total size %d ",m_totaltrmap.size());
+	 m_plogutil->WriteLog(m_logbuf);
 	 for(map<std::string,double >::iterator iter=m_totaltrmap.begin(); iter!=m_totaltrmap.end(); iter++){
-		 cout<<"+++++++++++++++++++ 合约:"<<iter->first<<"       totaltr:"<<iter->second  <<endl;
+		 sprintf (m_logbuf,"-----> ins: %s  %f ",iter->first.c_str(),iter->second);
+		 m_plogutil->WriteLog(m_logbuf);
 	 }
 //		 gettimeofday( &end, NULL );
 //				printf("/////////////////end   ----------------------> %ld.%ld\n", end.tv_sec, end.tv_usec);
@@ -521,7 +547,7 @@ std::shared_ptr<Commission>  DataWrapper::FindCommissionData(const char* id)
 			  }
 
 			  else{
-				  cout<<"++++++++++++++++++FindCommission Do not Find:"<<id<<endl;
+//				  cout<<"++++++++++++++++++FindCommission Do not Find:"<<id<<endl;
 				  return nullptr;
 			  }
 
@@ -1087,8 +1113,9 @@ std::string DataWrapper::CollectOpenDatebyPosDetail(const char* instrumentid)
 
 		if(iter->second->Volume>0){
 			opendate=iter->second->OpenDate;
-			printf("++++++++++++++++++posdetail 计算开仓均价 %s volume:%d   openprice:%.2f  opendate:%s\n",
+			sprintf(m_logbuf,"++++++++++++++++++posdetail 计算开仓均价 %s volume:%d   openprice:%.2f  opendate:%s\n",
 							iter->second->InstrumentID,iter->second->Volume,iter->second->OpenPrice,iter->second->OpenDate);
+			m_plogutil->WriteLog(m_logbuf);
 		}
 	}
 
@@ -1173,29 +1200,6 @@ bool DataWrapper::InsertInvestPositionMap(InvestPositionData &data)
 	return ret;
 }
 
-//bool DataWrapper::InsertInvestPositionMap(std::shared_ptr<InvestPositionData> info)
-//{
-//	 bool ret=false;
-//	try {
-//			std::unique_lock<std::mutex>lck(m_investpositionmutex);  // 函数结束时，自动析构解锁
-//			std::string key=info->symbol;
-//
-//			if (m_investpositionmap.find(key) != m_investpositionmap.end()) {
-//				m_investpositionmap[key] = info;
-//			}
-//			else	{
-//				m_investpositionmap.insert(std::pair<std::string, std::shared_ptr<InvestPositionBuffer>>(key, info));
-//
-//			}
-//			ret=true;
-//
-//		} catch(std::logic_error&) {
-//			std::cout << "[exception caught CTraderSpi::InsertInvestPositionMap >>> ]\n";
-//			ret=false;
-//
-//		}
-//	return ret;
-//}
 
 bool DataWrapper::GetInvestList(vector<InvestPositionData> &list)
 {
