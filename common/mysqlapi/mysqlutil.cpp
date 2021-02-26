@@ -9,7 +9,7 @@ MysqlUtil::~MysqlUtil(){
 }
 void MysqlUtil::SetLogPathFileName(){
 
-	Config config("config");
+	Config config(_strategyname.c_str());
 	std::string baselog=config.GetLogPath().c_str();
 
 	baselog.append(_strategyname);
@@ -1218,7 +1218,7 @@ void MysqlUtil::CheckRecordReport(const char* userid)
 	MysqlUser mysqluser;
 	User userinfo=mysqluser.Find_ActiveData();
 
-	Config config("config");
+	Config config(_strategyname.c_str());
 	MysqlOrder mysqlcloseorder(config.GetTable_Close().c_str(),userinfo.UserID);
 	MysqlRecord mysqlrecord;
 
@@ -1335,7 +1335,7 @@ time_t MysqlUtil::GetHisLastDate_DayLine(const char* date,int difsec)
 {
 	DateUtil dateutil;
 
-	Config config("config");
+	Config config(_strategyname.c_str());
 	vector<std::string>  list;
 	dateutil.ReadHoliday_CSV(list,config.GetHolidayPath().c_str(),config.GetHolidayFileName().c_str());
 

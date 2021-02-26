@@ -3074,7 +3074,7 @@ void TrendTrader::CheckLocalOrderList(const char* tablename)
 
 
 	std::string tradingdate;
-	Config config("");
+	Config config(this->GetStrategyName().c_str());
 	MysqlOrder mysqlopenorder(config.GetTable_Open().c_str(),this->GetPointUserLoginField()->UserID);
 
 	vector<OrderData>  orderlist;
@@ -3136,7 +3136,7 @@ void TrendTrader::AccountSelfCheck()
 {
 
 	//本地有发送 无回应的委托单  则启动
-	Config config("");
+	Config config(this->GetStrategyName().c_str());
 	printf(" AccountSelfCheck  CheckLocalOrderList open \n");
 	this->CheckLocalOrderList(config.GetTable_Open().c_str());
 
@@ -3161,7 +3161,7 @@ void TrendTrader::DayTrade_AccountSelfCheck()
 {
 
 	//本地有发送 无回应的委托单  则启动
-	Config config("");
+	Config config(this->GetStrategyName().c_str());
 	printf(" DayTrade_AccountSelfCheck  open \n");
 	this->CheckLocalOrderList(config.GetTable_Open().c_str());
 	printf(" DayTrade_AccountSelfCheck  close\n");
@@ -5166,7 +5166,7 @@ HoldData  TrendTrader::DayTrade_CollectStopPriceByOpenDate(const char* pinstrume
 
 	if(strcmp(str_tradingsqltime.c_str(),opendate)==0)	{
 		printf("CollectStopPriceByOpenDate   --> 当天开仓  %s !!!\n",opendate);
-		Config config("");
+		Config config(this->GetStrategyName().c_str());
 		MysqlOrder mysqlopenorder(config.GetTable_Open().c_str(),this->GetPointUserLoginField()->UserID);
 		OrderData opendata;
 
