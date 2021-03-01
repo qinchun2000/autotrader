@@ -371,7 +371,7 @@ void DayTrader::OpenSignalCheck(const char* opensignal)
 			valid_delaytime =c_time<10;
 		}
 		else{
-			valid_delaytime =c_time<300;
+			valid_delaytime =c_time<600;
 		}
 
 		if (!valid_delaytime){

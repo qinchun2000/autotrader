@@ -116,14 +116,16 @@ void Turtle::run(){
 
 void  Turtle::Open()
 {
-//		printf("StrategySpread::Open_Turtle  begin----------->  %ld \n",this->GetDataWrapper()->GetContractLists()->size());
 	char logbuf[1024];
+	sprintf(logbuf,"StrategySpread::Open_Turtle  begin----------->  %ld \n",this->GetDataWrapper()->GetContractLists()->size());
+	this->GetLogUtil()->WriteLog(logbuf);
+
 	MysqlDayLine mysqldayline;
 	double avalible   = this->GetInitialMoney();
 
 	DateUtil dateutil;
 	std::string tradingday_sqltime = dateutil.ConvertDatetoSqlTime(this->GetDataWrapper()->GetTradingDay().c_str());
-//	std::cout<<tradingday_sqltime<<endl;
+
 	std::string trading_date = this->GetDataWrapper()->GetTradingDay().c_str();   //xxxxxxxx   20170901
 	time_t tm_tradingday=dateutil.ConvertSqlTimetoTimet(tradingday_sqltime.c_str());
 
@@ -245,7 +247,8 @@ void  Turtle::Open()
 		}
 		else{
 			valid_stoprange=false;
-				sprintf(logbuf,">>>>>>>>>	Strategy:Open_Turtle stoprange  数据异常---> %.3f   ---->  %s  \n",atr20,item->InstrumentID);
+				sprintf(logbuf,">>>>>>>>>	Strategy:Open_Turtle atr20   数据异常--->lastprice:%.3f  tr:%.3f totaltr:%.3f atr20:%.3f   ---->  %s  \n",
+						depthmarket.LastPrice,tr,totaltr,atr20,item->InstrumentID);
 				this->GetLogUtil()->WriteLog(logbuf);
 		}
 

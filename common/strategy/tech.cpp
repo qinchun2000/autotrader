@@ -479,7 +479,7 @@ bool Tech::ValidCheck_DepthMarket(DepthMarket *depthmarket){
 	time_t t_updatetime = dateutil.ConvertSqlTimetoTimet(str_updatetime.c_str());
 	time_t t_currenttime = dateutil.ConvertSqlTimetoTimet(str_current.c_str());
 
-	bool valid_updatetime = abs(t_updatetime-t_currenttime)<60;
+	bool valid_updatetime = abs(t_updatetime-t_currenttime)<600;
 	if(!valid_updatetime){
 		printf("	ValidCheck_DepthMarket 行情数据时间延迟大于10秒: %s  --> Updatime: %s [%ld]   currenttime: %s [%ld]  \n",
 				depthmarket->InstrumentID,str_updatetime.c_str(),t_updatetime,str_current.c_str(),t_currenttime);
