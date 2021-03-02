@@ -527,6 +527,14 @@ void ThreadTrade::Fun_Trade_OpenCheck_noSta(){
 
 void ThreadTrade::Run(){
 
+	std::string logpath="/var/log/autotrader";
+
+	if(access(logpath.c_str(),0)==-1){  
+		if (mkdir(logpath.c_str(),0777)){
+			 printf("CheckLogPath:开始启动程序  --->>>>创建文件夹 %s Error!!!  \n",logpath.c_str());
+		}
+	}
+
 	this->SetBaseAccount(true);
 	DateUtil dateutil;
 	char logbuf[1024];
